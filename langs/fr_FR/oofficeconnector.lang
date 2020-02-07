@@ -28,6 +28,10 @@ ModuleOOfficeConnectorDesc = Description de OOfficeConnector
 OOfficeConnectorSetup = Configuration du module OOfficeConnector
 Settings = Réglages
 OOfficeConnectorSetupPage = Page de configuration du module OOfficeConnector
+OOfficeToken=Clé de sécurité Dolibarr permettant d'authentifier les retours issues de ONLYOFFICE documents serveur
+OOfficeTokenHelp=Lors de la sauvegarde des modifications sur l'éditeurs de documents, le fichier est renvoyé vers Dolibarr pour être stocké. Cette clé de sécurité permet la génération d'un token unique permettant de contrôler la provenance et la légitimité du fichier.
+OnlyOfficeDocServerUrl=Url du serveur de document ONLYOFFICE
+OnlyOfficeDocServerSecureKey=Clé de sécurité du serveur de document ONLYOFFICE
 
 #
 # Page À propos
@@ -46,3 +50,9 @@ MyPageName = Nom de ma page
 #
 MyWidget = Mon widget
 MyWidgetDescription = Description de mon widget
+
+#
+# Errors
+#
+ConfDocServUrlNotDefined=L'Url du serveur de document ONLYOFFICE n'est pas défini
+ConfDocServUrlNotValid=L'Url du serveur de document ONLYOFFICE n'est pas valide

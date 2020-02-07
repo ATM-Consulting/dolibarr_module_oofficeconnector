@@ -111,6 +111,35 @@ print "</tr>\n";
 
 //_printOnOff('ONLYOFFICE_', $langs->trans('ggetgt'));
 
+$params = array();
+if (! empty($conf->use_javascript_ajax)){
+    $params['append'] = '&nbsp;'.img_picto($langs->trans('Generate'), 'refresh', 'id="generate_token" class="linkobject"');
+    $params['append'].= "\n".'<script type="text/javascript">';
+    $params['append'].= '
+    $(document).ready(function () {
+		$("#generate_token").click(function() {
+		    $.get( "'.DOL_URL_ROOT.'/core/ajax/security.php", {
+			    action: \'getrandompassword\',
+			    generic: true
+            },
+			function(token) {
+			    $("#ooffice-token").val(token);
+            });
+        });
+    });
+    ';
+    $params['append'].= '</script>';
+}
+
+
+
+$metas = array(
+    'required' => true,
+    'placeholder' => "75gerg76gergg3reg4erghr351",
+    'id'          => 'ooffice-token'
+);
+_printInputFormPart('OOFFICE_TOKEN', $langs->trans('OOfficeToken'), '', $metas, '', $langs->trans('OOfficeTokenHelp'), $params);
+
 $metas = array(
     'required' => true,
     'placeholder' => "https://documentserver/"
@@ -192,7 +221,7 @@ function _printOnOff($confkey, $title = false, $desc = '')
  *
  * @return void
  */
-function _printInputFormPart($confkey, $title = false, $desc = '', $metas = array(), $type = 'input', $help = false)
+function _printInputFormPart($confkey, $title = false, $desc = '', $metas = array(), $type = 'input', $help = false, $params = array())
 {
     global $langs, $conf, $db, $inputCount;
 
@@ -244,5 +273,10 @@ function _printInputFormPart($confkey, $title = false, $desc = '', $metas = arra
     } else {
         print '<input '.$metascompil.'  />';
     }
+
+    if(!empty($params['append'])){
+        print $params['append'];
+    }
+
     print '</td></tr>';
 }

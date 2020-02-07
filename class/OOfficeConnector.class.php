@@ -67,12 +67,21 @@ class OOfficeConnector {
      */
     public $documentServerTmeout = 120000;
 
+
+    /**
+     * Url of ONLYOFFICE document server
+     * @var string $documentServerUrl
+     */
+    public $documentServerUrl;
+
     /**
      * @var string $documentServerConverterRelativeUrlPath
      */
-    protected $documentServerConverterRelativeUrlPath = "/ConvertService.ashx";
+    protected $documentServerConverterRelativeUrlPath = "ConvertService.ashx";
 
     /**
+     * Document conversion service is a part of ONLYOFFICE Document Server.
+     * It lets the user convert files from one format into another to open them later in document editors or for their export.
      * @var string $documentServerConverterUrl
      */
     public $documentServerConverterUrl;
@@ -80,7 +89,7 @@ class OOfficeConnector {
     /**
      * @var string $documentServerApiRelativeUrlPath
      */
-    protected $documentServerApiRelativeUrlPath = "/web-apps/apps/api/documents/api.js";
+    protected $documentServerApiRelativeUrlPath = "web-apps/apps/api/documents/api.js";
 
     /**
      * @var string $documentServerApiUrl
@@ -90,7 +99,7 @@ class OOfficeConnector {
     /**
      * @var string $documentServerPreloaderRelativeUrlPath
      */
-    protected $documentServerPreloaderRelativeUrlPath = "/web-apps/apps/api/documents/cache-scripts.html";
+    protected $documentServerPreloaderRelativeUrlPath = "web-apps/apps/api/documents/cache-scripts.html";
 
     /**
      * @var string $documentServerPreloaderUrl
@@ -100,7 +109,17 @@ class OOfficeConnector {
     /**
      * @var string $callBackUrlPath
      */
-    protected $callBackUrlPath = "/oofficeconnector/ajax/callback.json.php";
+    protected $callBackUrlPath = "oofficeconnector/ajax/callback.json.php";
+
+    /**
+     * The ONLYOFFICE document editing service informs the Dolibarr about the status of the document editing
+     * using the callbackUrl from JavaScript API. The document editing service use the POST request with the information in body.
+     *
+     * used in ONLYOFFICE js Callback handler
+     *
+     * @var string $callBackUrl
+     */
+    public $callBackUrl;
 
     /**
      * @var string $documentServerSecureKey;
@@ -114,8 +133,82 @@ class OOfficeConnector {
 
 
 
+    /**
+     * Constructor
+     *
+     *   @param DoliDB $db
+     *   Database handler
+     */
+    function __construct($db) {
+        global $langs;
+
+        $langs->loadLangs("oofficeconnector@oofficeconnector");
+
+        $this->db = $db;
+        $this->error = 0;
+        $this->errors = array();
+
+        // LOAD CONF
+        $this->documentServerUrl        = $this->global->ONLYOFFICE_DOC_SERV_URL;
+        $this->documentServerSecureKey  = $this->global->ONLYOFFICE_DOC_SERV_SECURE_KEY;
+
+        // Check ONLYOFFICE document server URL and generate all needed urls
+        $this->generateDocumentServerUrls();
+
+        // set callback url (to receive documents on save)
+        $this->callBackUrl = dol_buildpath($this->callBackUrlPath, 2); // !important type 2 for external call
+
+        if($this->error){
+            return false;
+        }
+
+        return true;
+    }
 
 
+    /**
+     * Build all ONLYOFFICE URLs from this class conf
+     */
+    public function generateDocumentServerUrls(){
+        if(!empty($this->documentServerUrl)){
+            if (filter_var($this->documentServerUrl, FILTER_VALIDATE_URL)) {
+
+                // Add / to URL to prevent errors
+                if(substr($this->documentServerUrl, -1) != '/'){
+                    $this->documentServerUrl.'/';
+                }
+
+                // Construct all URLS to ONLYOFFICE documents server
+                $this->documentServerConverterUrl   = $this->documentServerUrl . $this->documentServerConverterRelativeUrlPath;
+                $this->documentServerApiUrl         = $this->documentServerUrl . $this->documentServerApiRelativeUrlPath;
+                $this->documentServerPreloaderUrl   = $this->documentServerUrl . $this->documentServerPreloaderRelativeUrlPath;
+            }
+            else {
+                $this->error('ConfDocServUrlNotValid');
+            }
+        }
+        else{
+            $this->error('ConfDocServUrlNotDefined');
+        }
+    }
+
+    /**
+     * @param $errorCode
+     */
+    public function error($errorCode){
+        global $langs;
+        $this->error++;
+        $this->errors[] = $langs->trans($errorCode);
+    }
+
+    /**
+     * convert errors to set event messages errors
+     */
+    public function setEventErrors(){
+        if(!empty($this->errors)){
+            setEventMessage($this->errors, 'errors');
+        }
+    }
 
     /**
      * Translation key to a supported form.
@@ -129,24 +222,6 @@ class OOfficeConnector {
         $key = preg_replace("[^0-9-.a-zA-Z_=]", "_", $expected_key);
         $key = substr($key, 0, min(array(strlen($key), 20)));
         return $key;
-    }
-
-    /**
-     * @return string|string[]|null
-     */
-    function getClientIp() {
-        $ipaddress =
-            getenv('HTTP_CLIENT_IP')?:
-                getenv('HTTP_X_FORWARDED_FOR')?:
-                    getenv('HTTP_X_FORWARDED')?:
-                        getenv('HTTP_FORWARDED_FOR')?:
-                            getenv('HTTP_FORWARDED')?:
-                                getenv('REMOTE_ADDR')?:
-                                    'Storage';
-
-        $ipaddress = preg_replace("/[^0-9a-zA-Z.=]/", "_", $ipaddress);
-
-        return $ipaddress;
     }
 
 
@@ -296,6 +371,25 @@ class OOfficeConnector {
         }
 
         return $resultPercent;
+    }
+
+
+    /**
+     * @return string|string[]|null
+     */
+    function getClientIp() {
+        $ipaddress =
+            getenv('HTTP_CLIENT_IP')?:
+                getenv('HTTP_X_FORWARDED_FOR')?:
+                    getenv('HTTP_X_FORWARDED')?:
+                        getenv('HTTP_FORWARDED_FOR')?:
+                            getenv('HTTP_FORWARDED')?:
+                                getenv('REMOTE_ADDR')?:
+                                    'Storage';
+
+        $ipaddress = preg_replace("/[^0-9a-zA-Z.=]/", "_", $ipaddress);
+
+        return $ipaddress;
     }
 
 }

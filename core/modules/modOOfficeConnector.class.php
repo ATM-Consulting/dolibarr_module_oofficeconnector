@@ -45,12 +45,12 @@ class modOOfficeConnector extends DolibarrModules
 
         // Id for module (must be unique).
         // Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
-        $this->numero = 500000; // TODO Go on page https://wiki.dolibarr.org/index.php/List_of_modules_id to reserve an id number for your module
+        $this->numero = 104716;
         // Key text used to identify module (for permissions, menus, etc...)
         $this->rights_class = 'oofficeconnector';
         // Family can be 'base' (core modules),'crm','financial','hr','projects','products','ecm','technic' (transverse modules),'interface' (link with external tools),'other','...'
         // It is used to group modules by family in module setup page
-        $this->family = "other";
+        $this->family = "ecm";
         // Module position in the family on 2 digits ('01', '10', '20', ...)
         $this->module_position = '90';
         // Gives the possibility for the module, to provide his own family info and position of this family (Overwrite $this->family and $this->module_position. Avoid this)
@@ -61,8 +61,8 @@ class modOOfficeConnector extends DolibarrModules
         $this->description = "OOfficeConnectorDescription";
         // Used only if file README.md and README-LL.md not found.
         $this->descriptionlong = "OOfficeConnector description (Long)";
-        $this->editor_name = 'Editor name';
-        $this->editor_url = 'https://www.example.com';
+        $this->editor_name = 'ATM';
+        $this->editor_url = 'https://www.atm-consulting.fr';
         // Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
         $this->version = '1.0';
         // Url to the file with your last numberversion of this module
@@ -73,7 +73,8 @@ class modOOfficeConnector extends DolibarrModules
         // Name of image file used for this module.
         // If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
         // If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
-        $this->picto = 'generic';
+        $this->picto='oofficeconnector@oofficeconnector';
+
         // Define some features supported by module (triggers, login, substitutions, menus, css, etc...)
         $this->module_parts = array(
             // Set this to 1 if module has its own trigger directory (core/triggers)
@@ -266,7 +267,7 @@ class modOOfficeConnector extends DolibarrModules
         $r = 0;
         // Add here entries to declare new menus
         /* BEGIN MODULEBUILDER TOPMENU */
-        $this->menu[$r++] = array(
+        /*$this->menu[$r++] = array(
             'fk_menu'=>'', // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
             'type'=>'top', // This is a Top menu entry
             'titre'=>'OOfficeConnector',
@@ -279,7 +280,7 @@ class modOOfficeConnector extends DolibarrModules
             'perms'=>'$user->rights->oofficeconnector->myobject->read', // Use 'perms'=>'$user->rights->oofficeconnector->level1->level2' if you want your menu with a permission rules
             'target'=>'',
             'user'=>2, // 0=Menu for internal users, 1=external users, 2=both
-        );
+        );*/
         /* END MODULEBUILDER TOPMENU */
         /* BEGIN MODULEBUILDER LEFTMENU MYOBJECT
         $this->menu[$r++]=array(
@@ -390,8 +391,8 @@ class modOOfficeConnector extends DolibarrModules
     {
         global $conf, $langs;
 
-        $result = $this->_load_tables('/oofficeconnector/sql/');
-        if ($result < 0) return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
+        //$result = $this->_load_tables('/oofficeconnector/sql/');
+        //if ($result < 0) return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
         // Create extrafields during init
         //include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
