@@ -14,6 +14,37 @@ class OOfficeConnector {
     public $mode;
 
     /**
+     * @var array $extsSpreadSheet
+     */
+    public $extsSpreadSheet = array(
+        ".xls", ".xlsx", ".xlsm",
+        ".xlt", ".xltx", ".xltm",
+        ".ods", ".fods", ".ots",
+        ".csv"
+    );
+
+    /**
+     * @var array $extsPresentation
+     */
+    public $extsPresentation = array(
+        ".pps", ".ppsx", ".ppsm",
+        ".ppt", ".pptx", ".pptm",
+        ".pot", ".potx", ".potm",
+        ".odp", ".fodp", ".otp"
+    );
+
+    /**
+     * @var array $extsPresentation
+     */
+    public $extsDocument = array(
+        ".doc", ".docx", ".docm",
+        ".dot", ".dotx", ".dotm",
+        ".odt", ".fodt", ".ott", ".rtf", ".txt",
+        ".html", ".htm", ".mht",
+        ".pdf", ".djvu", ".fb2", ".epub", ".xps"
+    );
+
+    /**
      * List of Documents in view mod only
      * @var array $documentServerViewed
      */
@@ -66,7 +97,6 @@ class OOfficeConnector {
      */
     public $documentServerPreloaderUrl;
 
-
     /**
      * @var string $callBackUrlPath
      */
@@ -81,37 +111,6 @@ class OOfficeConnector {
      * @var string $mobileDeviceRegex;
      */
     public $mobileDeviceRegex = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
-
-    /**
-     * @var array $extsSpreadSheet
-     */
-    public $extsSpreadSheet = array(
-        ".xls", ".xlsx", ".xlsm",
-        ".xlt", ".xltx", ".xltm",
-        ".ods", ".fods", ".ots",
-        ".csv"
-    );
-
-    /**
-     * @var array $extsPresentation
-     */
-    public $extsPresentation = array(
-        ".pps", ".ppsx", ".ppsm",
-        ".ppt", ".pptx", ".pptm",
-        ".pot", ".potx", ".potm",
-        ".odp", ".fodp", ".otp"
-    );
-
-    /**
-     * @var array $extsPresentation
-     */
-    public $extsDocument = array(
-        ".doc", ".docx", ".docm",
-        ".dot", ".dotx", ".dotm",
-        ".odt", ".fodt", ".ott", ".rtf", ".txt",
-        ".html", ".htm", ".mht",
-        ".pdf", ".djvu", ".fb2", ".epub", ".xps"
-    );
 
 
 
