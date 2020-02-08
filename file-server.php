@@ -11,6 +11,11 @@ if (!defined('NOREQUIREAJAX'))  define('NOREQUIREAJAX', '1');
 
 include __DIR__ . '/loadmain.inc.php';
 
+// Check module is active
+if(empty($conf->oofficeconnector->enabled)){
+    accessforbidden();
+}
+
 require_once  __DIR__ . '/class/OOfficeConnector.class.php';
 
 $OOffice = new OOfficeConnector($db);

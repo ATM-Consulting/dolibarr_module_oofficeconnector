@@ -33,6 +33,11 @@ $langs->loadLangs(array("oofficeconnector@oofficeconnector"));
 
 $action=GETPOST('action', 'alpha');
 
+// Check module is active
+if(empty($conf->oofficeconnector->enabled)){
+    accessforbidden();
+}
+
 // Securite acces client
 if (! $user->rights->oofficeconnector->document->read) accessforbidden();
 $socid=GETPOST('socid', 'int');

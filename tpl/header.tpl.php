@@ -7,7 +7,7 @@ $publicUrl = dol_buildpath('oofficeconnector/', 1);
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title><?php echo empty($title)?$title:''; ?> - <?php echo !empty($conf->global->MAIN_INFO_SOCIETE_NOM)?$conf->global->MAIN_INFO_SOCIETE_NOM:''; ?></title>
+		<title><?php echo !empty($title)?$title:''; ?> - <?php echo !empty($conf->global->MAIN_INFO_SOCIETE_NOM)?$conf->global->MAIN_INFO_SOCIETE_NOM:''; ?></title>
 
 		<link rel="stylesheet" href="<?php print $publicUrl; ?>css/document-view.css">
 

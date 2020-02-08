@@ -21,6 +21,10 @@ $goBackUrl=urldecode($goBackUrl);
 
 $filename = basename($file);
 
+// Check module is active
+if(empty($conf->oofficeconnector->enabled)){
+    accessforbidden();
+}
 
 // TODO factor for file-server.php too
 // Securite acces client
@@ -49,7 +53,7 @@ $type = 'desktop'; // ($_GET["type"] == "mobile" ? "mobile" : ($_GET["type"] == 
 
 $permissionsEdit = in_array(strtolower('.' . pathinfo($filename, PATHINFO_EXTENSION)), $OOffice->documentServerEdited) ? "true" : "false";
 
-$editorConfigMode = 'view' ; //$GLOBALS['MODE'] != 'view' && in_array(strtolower('.' . pathinfo($filename, PATHINFO_EXTENSION)), $GLOBALS['DOC_SERV_EDITED']) && $_GET["action"] != "view" ? "edit" : "view";
+$editorConfigMode = "view"; // "view" ? "edit" : "view";
 
 $title = dol_htmlentities($filename);
 include __DIR__ . '/tpl/header.tpl.php';
@@ -83,7 +87,7 @@ $params = [
     "editorConfig" => [
         //"callbackUrl" => getCallbackUrl($filename) ,
         "lang" => "fr",
-        "mode" => (empty($callback) ? "view" : "edit"),
+        "mode" => $editorConfigMode,
         "user" => [
             "id" => $user->id,
             "name" => $user->getFullName($langs)
