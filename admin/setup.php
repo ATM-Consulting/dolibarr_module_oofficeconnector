@@ -111,6 +111,17 @@ print "</tr>\n";
 
 //_printOnOff('ONLYOFFICE_', $langs->trans('ggetgt'));
 
+if(empty($conf->global->OOFFICE_DOLIBARR_URL_CALL))
+{
+    dolibarr_set_const($db, 'OOFFICE_DOLIBARR_URL_CALL', DOL_MAIN_URL_ROOT);
+}
+$metas = array(
+    'placeholder' => DOL_MAIN_URL_ROOT
+);
+_printInputFormPart('OOFFICE_DOLIBARR_URL_CALL', $langs->trans('OOfficeDolibarrUrl'), '', $metas, '', $langs->trans('OOfficeDolibarrUrlHelp'));
+
+
+
 $params = array();
 if (! empty($conf->use_javascript_ajax)){
     $params['append'] = '&nbsp;'.img_picto($langs->trans('Generate'), 'refresh', 'id="generate_token" class="linkobject"');
@@ -139,6 +150,14 @@ $metas = array(
     'id'          => 'ooffice-token'
 );
 _printInputFormPart('OOFFICE_TOKEN', $langs->trans('OOfficeToken'), '', $metas, '', $langs->trans('OOfficeTokenHelp'), $params);
+
+
+print '<tr class="liste_titre">';
+print '<td>'.$langs->trans("ParameterForONLYOFFICE").'</td>';
+print '<td align="center" width="60">'.$langs->trans("Value").'</td>';
+print '<td width="80">&nbsp;</td>';
+print "</tr>\n";
+
 
 $metas = array(
     'required' => true,

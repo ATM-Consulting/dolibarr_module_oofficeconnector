@@ -242,23 +242,47 @@ class modOOfficeConnector extends DolibarrModules
 
         // Permissions provided by this module
         $this->rights = array();
-        $r = 0;
+
         // Add here entries to declare new permissions
         /* BEGIN MODULEBUILDER PERMISSIONS */
-        $this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
-        $this->rights[$r][1] = 'Read objects of OOfficeConnector'; // Permission label
-        $this->rights[$r][4] = 'myobject'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+
+        $r = 0;
+        $this->rights[$r][0] = $this->numero . $r; // Permission id (must not be already used)
+        $this->rights[$r][1] = 'ReadDocumentWithOOffice'; // Permission label
+        $this->rights[$r][4] = 'document'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
         $this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
-        $r++;
-        $this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
-        $this->rights[$r][1] = 'Create/Update objects of OOfficeConnector'; // Permission label
-        $this->rights[$r][4] = 'myobject'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+
+        $r = 1;
+        $this->rights[$r][0] = $this->numero . $r; // Permission id (must not be already used)
+        $this->rights[$r][1] = 'CreateUpdateDocumentWithOOffice'; // Permission label
+        $this->rights[$r][4] = 'document'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
         $this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
-        $r++;
-        $this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
-        $this->rights[$r][1] = 'Delete objects of OOfficeConnector'; // Permission label
-        $this->rights[$r][4] = 'myobject'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+
+        $r = 2; // keep number
+//        $this->rights[$r][0] = $this->numero . $r; // Permission id (must not be already used)
+//        $this->rights[$r][1] = 'DeleteDocumentWithOOffice'; // Permission label
+//        $this->rights[$r][4] = 'document'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+//        $this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+
+        $r = 3;
+        $this->rights[$r][0] = $this->numero . $r; // Permission id (must not be already used)
+        $this->rights[$r][1] = 'ViewTemplateDocumentWithOOffice'; // Permission label
+        $this->rights[$r][4] = 'template'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+        $this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+
+        $r = 4;
+        $this->rights[$r][0] = $this->numero . $r; // Permission id (must not be already used)
+        $this->rights[$r][1] = 'CreateUpdateTemplateDocumentWithOOffice'; // Permission label
+        $this->rights[$r][4] = 'template'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+        $this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+
+        $r = 5;
+        $this->rights[$r][0] = $this->numero . $r; // Permission id (must not be already used)
+        $this->rights[$r][1] = 'DeleteTemplateDocumentWithOOffice'; // Permission label
+        $this->rights[$r][4] = 'template'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
         $this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->oofficeconnector->level1->level2)
+
+
         $r++;
         /* END MODULEBUILDER PERMISSIONS */
 
@@ -282,21 +306,24 @@ class modOOfficeConnector extends DolibarrModules
             'user'=>2, // 0=Menu for internal users, 1=external users, 2=both
         );*/
         /* END MODULEBUILDER TOPMENU */
-        /* BEGIN MODULEBUILDER LEFTMENU MYOBJECT
+
+        // BEGIN MODULEBUILDER LEFTMENU OOFFICECONNECTOR
         $this->menu[$r++]=array(
-            'fk_menu'=>'fk_mainmenu=oofficeconnector',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+            'fk_menu'=>'fk_mainmenu=tools',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
             'type'=>'left',                          // This is a Top menu entry
-            'titre'=>'MyObject',
-            'mainmenu'=>'oofficeconnector',
-            'leftmenu'=>'myobject',
+            'titre'=>'DocumentsTemplates',
+            'mainmenu'=>'tools',
+            'leftmenu'=>'documentstemplates',
             'url'=>'/oofficeconnector/oofficeconnectorindex.php',
             'langs'=>'oofficeconnector@oofficeconnector',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>1000+$r,
             'enabled'=>'$conf->oofficeconnector->enabled',  // Define condition to show or hide menu entry. Use '$conf->oofficeconnector->enabled' if entry must be visible if module is enabled.
-            'perms'=>'$user->rights->oofficeconnector->myobject->read',			                // Use 'perms'=>'$user->rights->oofficeconnector->level1->level2' if you want your menu with a permission rules
+            'perms'=>'$user->rights->oofficeconnector->template->read',			                // Use 'perms'=>'$user->rights->oofficeconnector->level1->level2' if you want your menu with a permission rules
             'target'=>'',
             'user'=>2,				                // 0=Menu for internal users, 1=external users, 2=both
         );
+
+        /*
         $this->menu[$r++]=array(
             'fk_menu'=>'fk_mainmenu=oofficeconnector,fk_leftmenu=myobject',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
             'type'=>'left',			                // This is a Left menu entry

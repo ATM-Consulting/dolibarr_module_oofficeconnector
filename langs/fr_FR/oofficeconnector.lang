@@ -14,6 +14,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #
+# RIGHT
+#
+ReadDocumentWithOOffice=Voir/lire les documents compatibles avec ONLYOFFICE
+CreateUpdateDocumentWithOOffice=Modifier les documents compatibles avec ONLYOFFICE - Active le mode édition de documents si l'utilisateur à les droits de modifications sur ces documents <br/><em>ex: pour modifier un fichier joint de facture, l'utilisateur doit disposer des droits de "Créer/modifier les factures clients" conformément à l'ajout de fichiers joints</em>
+AdminCreateUpdateDocumentWithOOffice=Modifier les documents compatibles avec ONLYOFFICE sans contraite de droits annexes - ce droit permet d'étendre la modification aux modules tiers et aux zones de dolibarr ne permettant pas une gestion des droits fine (dans la mesure du possible)
+ViewTemplateDocumentWithOOffice=Consulter les modèles de documents <em>(factures, propal, commandes...)</em>
+CreateUpdateTemplateDocumentWithOOffice=Créé/modifier les modèles de documents <em>(factures, propal, commandes...)</em>
+DeleteTemplateDocumentWithOOffice=Supprimer des modèles de documents <em>(factures, propal, commandes...)</em>
+
+#
 # Générique
 #
 
@@ -32,6 +42,8 @@ OOfficeToken=Clé de sécurité Dolibarr permettant d'authentifier les retours i
 OOfficeTokenHelp=Lors de la sauvegarde des modifications sur l'éditeurs de documents, le fichier est renvoyé vers Dolibarr pour être stocké. Cette clé de sécurité permet la génération d'un token unique permettant de contrôler la provenance et la légitimité du fichier.
 OnlyOfficeDocServerUrl=Url du serveur de document ONLYOFFICE
 OnlyOfficeDocServerSecureKey=Clé de sécurité du serveur de document ONLYOFFICE
+OOfficeDolibarrUrlHelp=Cette url doit être accéssible par ONLYOFFICE document serveur
+OOfficeDolibarrUrl=URL vers dolibarr utilisé pour callback de ONLYOFFICE document server (vide par défaut)
 
 #
 # Page À propos
@@ -41,9 +53,14 @@ OOfficeConnectorAbout = À propos de OOfficeConnector
 OOfficeConnectorAboutPage = Page à propos de OOfficeConnector
 
 #
-# Page d'exemple
+# templates page
 #
-MyPageName = Nom de ma page
+OOfficeConnectorTemplateArea = Modèle de documents Dolibarr
+DocumentsTemplates=Modèles des documents
+FindAFilePlaceholder=Rechercher un fichier ou dossier ...
+fileExplorer_item=élement
+fileExplorer_items=élements
+fileExplorer_Empty=Vide
 
 #
 # Box d'exemple

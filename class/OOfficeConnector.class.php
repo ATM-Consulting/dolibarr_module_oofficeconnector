@@ -131,7 +131,11 @@ class OOfficeConnector {
      */
     public $mobileDeviceRegex = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
 
-
+    /**
+     * Dolibarr url for ONLYOOFICE
+     * @var string $externalDolibarrUrlCall;
+     */
+    public $externalDolibarrUrlCall;
 
     /**
      * Constructor
@@ -140,17 +144,33 @@ class OOfficeConnector {
      *   Database handler
      */
     function __construct($db) {
-        global $langs;
+        global $langs, $conf;
 
-        $langs->loadLangs("oofficeconnector@oofficeconnector");
+        $langs->loadLangs(array("oofficeconnector@oofficeconnector"));
 
         $this->db = $db;
         $this->error = 0;
         $this->errors = array();
 
         // LOAD CONF
-        $this->documentServerUrl        = $this->global->ONLYOFFICE_DOC_SERV_URL;
-        $this->documentServerSecureKey  = $this->global->ONLYOFFICE_DOC_SERV_SECURE_KEY;
+        $this->documentServerUrl        = $conf->global->ONLYOFFICE_DOC_SERV_URL;
+        $this->documentServerSecureKey  = $conf->global->ONLYOFFICE_DOC_SERV_SECURE_KEY;
+
+        $this->externalDolibarrUrlCall  = $conf->global->OOFFICE_DOLIBARR_URL_CALL;
+        if(!empty($this->externalDolibarrUrlCall)){
+            if (filter_var($this->externalDolibarrUrlCall, FILTER_VALIDATE_URL)) {
+
+                // Add / to URL to prevent errors
+                if(substr($this->externalDolibarrUrlCall, -1) != '/'){
+                    $this->externalDolibarrUrlCall.'/';
+                }
+            }else {
+                $this->error('ConfDolibarrCallUrlNotValid');
+            }
+        }else{
+            $this->error('ConfDolibarrCallUrlNotDefined');
+        }
+
 
         // Check ONLYOFFICE document server URL and generate all needed urls
         $this->generateDocumentServerUrls();
@@ -223,6 +243,46 @@ class OOfficeConnector {
         $key = substr($key, 0, min(array(strlen($key), 20)));
         return $key;
     }
+
+
+
+
+    function getInternalExtension($filename) {
+        $ext = strtolower('.' . pathinfo($filename, PATHINFO_EXTENSION));
+
+        if (in_array($ext, $this->extsDocument)) return ".docx";
+        if (in_array($ext, $this->extsSpreadSheet)) return ".xlsx";
+        if (in_array($ext, $this->extsPresentation)) return ".pptx";
+        return "";
+    }
+
+    function getDocumentType($filename) {
+        $ext = strtolower('.' . pathinfo($filename, PATHINFO_EXTENSION));
+
+        if (in_array($ext, $this->extsDocument)) return "text";
+        if (in_array($ext, $this->extsSpreadSheet)) return "spreadsheet";
+        if (in_array($ext, $this->extsPresentation)) return "presentation";
+        return "";
+    }
+
+    function getScheme() {
+        return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    }
+
+    /**
+     * Defines the unique document identifier used for document recognition by the service.
+     * In case the known key is sent the document will be taken from the cache.
+     * Every time the document is edited and saved, the key must be generated anew.
+     * The document url can be used as the key but without the special characters and the length is limited to 20 symbols.
+     * @param $file
+     * @return Supported
+     */
+    static public function getDocEditorKey($file) {
+        $stat = filemtime($file);
+        $key = md5($file) . $stat;
+        return self::GenerateRevisionId($key);
+    }
+
 
 
     /**
