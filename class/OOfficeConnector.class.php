@@ -162,8 +162,13 @@ class OOfficeConnector {
 
                 // Add / to URL to prevent errors
                 if(substr($this->externalDolibarrUrlCall, -1) != '/'){
-                    $this->externalDolibarrUrlCall.'/';
+                    $this->externalDolibarrUrlCall = $this->externalDolibarrUrlCall.'/';
                 }
+
+                $stdDolibarURL = dol_buildpath('oofficeconnector',2);
+
+                $this->externalDolibarrUrlCall = str_replace(DOL_MAIN_URL_ROOT.'/', $this->externalDolibarrUrlCall, $stdDolibarURL);
+
             }else {
                 $this->error('ConfDolibarrCallUrlNotValid');
             }

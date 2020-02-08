@@ -15,6 +15,10 @@ $file=GETPOST('file', 'alpha');
 $file=urldecode($file);
 $attachment=GETPOST('attachment', 'int');
 
+// $goBackUrl is used by ONLYOFFICE ON close BTN
+$goBackUrl = GETPOST('attachment', 'int');
+$goBackUrl=urldecode($goBackUrl);
+
 $filename = basename($file);
 
 
@@ -39,8 +43,6 @@ require_once  __DIR__ . '/class/OOfficeConnector.class.php';
 
 $OOffice = new OOfficeConnector($db);
 
-$arrayofjs = array($OOffice->documentServerApiUrl);
-$arrayofcss = array();
 
 $type = 'desktop'; // ($_GET["type"] == "mobile" ? "mobile" : ($_GET["type"] == "embedded" ? "embedded" : ($_GET["type"] == "desktop" ? "desktop" : "")))
 
@@ -49,10 +51,13 @@ $permissionsEdit = in_array(strtolower('.' . pathinfo($filename, PATHINFO_EXTENS
 
 $editorConfigMode = 'view' ; //$GLOBALS['MODE'] != 'view' && in_array(strtolower('.' . pathinfo($filename, PATHINFO_EXTENSION)), $GLOBALS['DOC_SERV_EDITED']) && $_GET["action"] != "view" ? "edit" : "view";
 
-llxHeader("", dol_htmlentities($filename), $help_url = '', $target = '', $disablejs = 0, $disablehead = 0, $arrayofjs, $arrayofcss);
+$title = dol_htmlentities($filename);
+include __DIR__ . '/tpl/header.tpl.php';
 
-$downloadFileUrl = $OOffice->externalDolibarrUrlCall.'?modulepart='.$modulepart.'&file='.urlencode($file);
-print $downloadFileUrl ;
+$downloadFileUrl = $OOffice->externalDolibarrUrlCall.'/file-server.php?modulepart='.$modulepart.'&file='.urlencode($file);
+
+
+
 $params = [
 
     "width"=> "100%",
@@ -75,22 +80,21 @@ $params = [
         "url" => $downloadFileUrl,
     ],
     "documentType" => $OOffice->getDocumentType($filename),
-    /*"editorConfig" => [
-        "callbackUrl" => getCallbackUrl($filename) ,
-        "customization" => [
-            "goback" => [
-                "url" => serverPath()
-            ]
-        ],
+    "editorConfig" => [
+        //"callbackUrl" => getCallbackUrl($filename) ,
         "lang" => "fr",
         "mode" => (empty($callback) ? "view" : "edit"),
         "user" => [
-            "id" => 0,
-            "name" => "Jonn Smith"
+            "id" => $user->id,
+            "name" => $user->getFullName($langs)
         ]
-    ],*/
+    ],
     "type" => $type
 ];
+
+if(!empty($goBackUrl)){
+    $params["editorConfig"]["customization"]["goback"]["url"] = $goBackUrl;
+}
 
 $token = \Firebase\JWT\JWT::encode($params, $GLOBALS['MACHINEKEY']);
 $params['token'] = $token ;
@@ -158,6 +162,8 @@ $params = json_encode($params);
 
 
 <?php
+
+include __DIR__ . '/tpl/footer.tpl.php';
 
 $OOffice->setEventErrors();
 
