@@ -106,8 +106,7 @@ function _track() {
     switch ($status) {
         case "MustSave":
         case "Corrupted":
-
-            $OOffice->sendlog("case corrupted");
+        case "EditButSave":
 
             $downloadUri = html_entity_decode($data["url"]);
 
@@ -116,19 +115,25 @@ function _track() {
 
             $OOffice->sendlog("downloadUri: " . $downloadUri);
 
+
             if ($downloadExt != $curExt) {
+
                 $key = $OOffice->getDocEditorKey($downloadUri);
 
                 try {
-                    $OOffice->sendlog("Convert " . $downloadUri . " from " . $downloadExt . " to " . $curExt);
+                    $OOffice->sendlog("Try Convert " . $downloadUri . " from " . $downloadExt . " to " . $curExt);
+
                     $convertedUri = '';
                     $percent = $OOffice->GetConvertedUri($downloadUri, $downloadExt, $curExt, $key, FALSE, $convertedUri);
-                    if($percent == 100 && !empty($convertedUri)){
+                    if(!empty($convertedUri)){
                         $downloadUri = $convertedUri;
+                        $OOffice->sendlog("Converted download uri ".$convertedUri, 0);
                     }
                     else{
                         $OOffice->sendlog("Convert error ", 5);
                     }
+
+                    $OOffice->sendlog("END Try Convert ");
                 } catch (Exception $e) {
                     $OOffice->sendlog("Convert after save ".$e->getMessage(), 5);
                     $result["error"] = "error: " . $e->getMessage();

@@ -314,13 +314,38 @@ class OOfficeConnector {
             $conf->global->OOFFICE_ACTIVE_LOG = 0;
         }
 
-        if(intval($conf->global->OOFFICE_ACTIVE_LOG_LEVEL) >= $level)
+
+        if($level >= 0 && $level < 4){
+            $errorPrefix = 'LOG    ';
+        }
+        elseif($level==4){
+            $errorPrefix = 'WARNING';
+        }
+        else{
+            $errorPrefix = 'ERROR  ';
+        }
+
+        $bt = debug_backtrace();
+        $caller = array_shift($bt);
+
+        $file = str_replace(DOL_DOCUMENT_ROOT , "", $caller['file']);
+
+        $msg = $errorPrefix . ' Line ' .$caller['line']. ' from '.$file.' - '.date('Y-m-d H:i:s').' : ' . $msg;
+
+        if(intval($conf->global->OOFFICE_ACTIVE_LOG_LEVEL) <= $level)
         {
             $logsFolder = DOL_DATA_ROOT . "/";
             if (!file_exists($logsFolder)) {
                 mkdir($logsFolder);
             }
-            file_put_contents($logsFolder . $logFileName, $msg . PHP_EOL, FILE_APPEND);
+
+            // limit size of log file to 1Mo
+            if (file_exists($logsFolder . $logFileName) && filesize($logsFolder . $logFileName) / pow(1024, 2) > 1) {
+                file_put_contents($logsFolder . $logFileName, $msg . PHP_EOL);
+            }
+            else{
+                file_put_contents($logsFolder . $logFileName, $msg . PHP_EOL, FILE_APPEND);
+            }
         }
     }
 
@@ -346,22 +371,32 @@ class OOfficeConnector {
      * @return The percentage of completion of conversion
      */
     function GetConvertedUri($document_uri, $from_extension, $to_extension, $document_revision_id, $is_async, &$converted_document_uri) {
+
+
         $converted_document_uri = "";
         $responceFromConvertService = $this->SendRequestToConvertService($document_uri, $from_extension, $to_extension, $document_revision_id, $is_async);
 
-        $errorElement = $responceFromConvertService->Error;
-        if ($errorElement != NULL && $errorElement != "") self::ProcessConvServResponceError($errorElement);
+        $errorElement = intval($responceFromConvertService->error);
 
-        $isEndConvert = $responceFromConvertService->EndConvert;
-        $percent = $responceFromConvertService->Percent . "";
+        $this->sendlog(json_encode($responceFromConvertService), 0);
 
-        if ($isEndConvert != NULL && strtolower($isEndConvert) == "true")
+        if ($errorElement<0){
+            $errorMessage = self::ProcessConvServResponceError($errorElement);
+            $this->sendlog($errorMessage, 5);
+            throw new Exception($errorMessage);
+        }
+
+        $isEndConvert = $responceFromConvertService->endConvert;
+        $percent = $responceFromConvertService->percent . "";
+
+        if (!empty($isEndConvert))
         {
-            $converted_document_uri = $responceFromConvertService->FileUrl;
+            $converted_document_uri = $responceFromConvertService->fileUrl;
             $percent = 100;
         }
         else if ($percent >= 100)
             $percent = 99;
+
 
         return $percent;
     }
@@ -423,7 +458,7 @@ class OOfficeConnector {
         }
 
         $context  = stream_context_create($opts);
-        $response_data = file_get_contents($urlToConverter, FALSE, $context);
+        $response_data = json_decode(file_get_contents($urlToConverter, FALSE, $context));
 
         return $response_data;
     }
@@ -458,7 +493,7 @@ class OOfficeConnector {
         $errorMessageTemplate = "Error occurred in the document service: ";
         $errorMessage = '';
 
-        switch ($errorCode)
+        switch (intval($errorCode))
         {
             case -8:
                 $errorMessage = $errorMessageTemplate . "Error document VKey";
@@ -491,7 +526,7 @@ class OOfficeConnector {
                 break;
         }
 
-        throw new Exception($errorMessage);
+        return $errorMessage;
     }
 
 }
