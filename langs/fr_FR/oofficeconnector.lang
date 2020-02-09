@@ -35,15 +35,20 @@ ModuleOOfficeConnectorDesc = Description de OOfficeConnector
 #
 # Page d'administration
 #
+ParameterForONLYOFFICE=Paramètres ONLYOFFICE
 OOfficeConnectorSetup = Configuration du module OOfficeConnector
 Settings = Réglages
+OOFFICE_ACTIVE_LOG=Activer les logs
 OOfficeConnectorSetupPage = Page de configuration du module OOfficeConnector
 OOfficeToken=Clé de sécurité Dolibarr permettant d'authentifier les retours issues de ONLYOFFICE documents serveur
-OOfficeTokenHelp=Lors de la sauvegarde des modifications sur l'éditeurs de documents, le fichier est renvoyé vers Dolibarr pour être stocké. Cette clé de sécurité permet la génération d'un token unique permettant de contrôler la provenance et la légitimité du fichier.
+OOfficeTokenHelp=Lors de la sauvegarde des modifications sur l'éditeurs de documents, le fichier est renvoyé vers Dolibarr pour être stocké. Cette clé de sécurité est une chaine aléatoire putilisée pour la génération d'un token unique permettant de contrôler la provenance et la légitimité du fichier.<br/>Vous pouvez changer cette valeur a tout moment.
 OnlyOfficeDocServerUrl=Url du serveur de document ONLYOFFICE
-OnlyOfficeDocServerSecureKey=Clé de sécurité du serveur de document ONLYOFFICE
+OnlyOfficeDocServerSecureKey=Clé secrete du serveur de document ONLYOFFICE
+OnlyOfficeDocServerSecureKeyHelp=Si votre serveur de documents ONLYOFFICE utilise une clé secrete. Dans le cas contraire laisser vide
 OOfficeDolibarrUrlHelp=Cette url doit être accéssible par ONLYOFFICE document serveur
 OOfficeDolibarrUrl=URL vers dolibarr utilisé pour callback de ONLYOFFICE document server (vide par défaut)
+OnlyOfficeDocSalt=Sel ou grain de sable utilisé pour generer un identifiant unique de révision de fichier.
+OnlyOfficeDocSaltHelp=Il s'agit d'une chaine aléatoire composé de chiffres et caractères alphanumériques. ONLYOFFICE se sert de l'<b>identifiant de révision</b> pour savoir s'il doit retélécharger le fichier ou utiliser le cache.<br/><b>Vous pouvez changer cette valeur si vous rencontrez des problèmes avec le cache coté ONLYOFFICE.</b>
 
 #
 # Page À propos

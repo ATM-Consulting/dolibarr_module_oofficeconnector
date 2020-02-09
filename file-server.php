@@ -34,6 +34,8 @@ if($modulepart === 'documentstemplates'){
     $rootPath = DOL_DATA_ROOT.'/';
 }
 
+//$OOffice->getDocumentInfo($modulepart,$file,$user,$params = array(), $conf->entity);
+
 
 // TODO : testing file exists
 // TODO : Check file access a good file ex no ../ or ./ in relative path

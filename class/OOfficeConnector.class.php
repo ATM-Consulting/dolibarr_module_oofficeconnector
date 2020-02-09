@@ -63,9 +63,9 @@ class OOfficeConnector {
     public $documentServerConvert = array(".docm", ".doc", ".dotx", ".dotm", ".dot", ".odt", ".fodt", ".ott", ".xlsm", ".xls", ".xltx", ".xltm", ".xlt", ".ods", ".fods", ".ots", ".pptm", ".ppt", ".ppsx", ".ppsm", ".pps", ".potx", ".potm", ".pot", ".odp", ".fodp", ".otp", ".rtf", ".mht", ".html", ".htm", ".epub");
 
     /**
-     * @var int $documentServerTmeout
+     * @var int $documentServerTimeout
      */
-    public $documentServerTmeout = 120000;
+    public $documentServerTimeout = 120000;
 
 
     /**
@@ -283,78 +283,50 @@ class OOfficeConnector {
      * @return Supported
      */
     static public function getDocEditorKey($file) {
-        $stat = filemtime($file);
+        global $conf;
+        if (is_file($file)) {
+            $stat = filemtime($file);
+        } else {
+            $stat = md5($file);
+        }
+
         $key = md5($file) . $stat;
+        if(!empty($conf->global->OOFFICE_DOCUMENT_SALT)){
+            $key.= $conf->global->OOFFICE_DOCUMENT_SALT;
+        }
         return self::GenerateRevisionId($key);
     }
 
-
-
     /**
-     * TODO : a partir d'ici
+     * @param $msg
+     * @param int $level 0 - 3 simple log infos, 4-7 errors
+     * @param string $logFileName
      */
+    static public function sendlog($msg, $level = 0, $logFileName = "ooffice.log") {
 
-    /**
-     * Request for conversion to a service
-     *
-     * @param string $document_uri            Uri for the document to convert
-     * @param string $from_extension          Document extension
-     * @param string $to_extension            Extension to which to convert
-     * @param string $document_revision_id    Key for caching on service
-     * @param bool   $is_async                Perform conversions asynchronously
-     *
-     * @return Document request result of conversion
-     */
-    public function SendRequestToConvertService($document_uri, $from_extension, $to_extension, $document_revision_id, $is_async) {
-        if (empty($from_extension))
+        global $conf;
+
+        if(empty($conf->global->OOFFICE_ACTIVE_LOG)){
+            return;
+        }
+
+        if(empty($conf->global->OOFFICE_ACTIVE_LOG)){
+            $conf->global->OOFFICE_ACTIVE_LOG = 0;
+        }
+
+        if(intval($conf->global->OOFFICE_ACTIVE_LOG_LEVEL) >= $level)
         {
-            $path_parts = pathinfo($document_uri);
-            $from_extension = $path_parts['extension'];
+            $logsFolder = DOL_DATA_ROOT . "/";
+            if (!file_exists($logsFolder)) {
+                mkdir($logsFolder);
+            }
+            file_put_contents($logsFolder . $logFileName, $msg . PHP_EOL, FILE_APPEND);
         }
-
-        $title = basename($document_uri);
-        if (empty($title)) {
-            $title = guid();
-        }
-
-        if (empty($document_revision_id)) {
-            $document_revision_id = $document_uri;
-        }
-
-        $document_revision_id = GenerateRevisionId($document_revision_id);
-
-        $urlToConverter = $GLOBALS['DOC_SERV_CONVERTER_URL'];
-
-        $data = json_encode(
-            array(
-                "async" => $is_async,
-                "url" => $document_uri,
-                "outputtype" => trim($to_extension,'.'),
-                "filetype" => trim($from_extension, '.'),
-                "title" => $title,
-                "key" => $document_revision_id
-            )
-        );
-
-        $opts = array('http' => array(
-            'method'  => 'POST',
-            'timeout' => $GLOBALS['DOC_SERV_TIMEOUT'],
-            'header'=> "Content-type: application/json\r\n" .
-                "Accept: application/json\r\n",
-            'content' => $data
-        )
-        );
-
-        if (substr($urlToConverter, 0, strlen("https")) === "https") {
-            $opts['ssl'] = array( 'verify_peer'   => FALSE );
-        }
-
-        $context  = stream_context_create($opts);
-        $response_data = file_get_contents($urlToConverter, FALSE, $context);
-
-        return $response_data;
     }
 
+    public function getFileExts() {
+        return array_merge($this->documentServerViewed, $this->documentServerEdited, $this->documentServerConvert);
+    }
 
 
     /**
@@ -375,10 +347,10 @@ class OOfficeConnector {
      */
     function GetConvertedUri($document_uri, $from_extension, $to_extension, $document_revision_id, $is_async, &$converted_document_uri) {
         $converted_document_uri = "";
-        $responceFromConvertService = SendRequestToConvertService($document_uri, $from_extension, $to_extension, $document_revision_id, $is_async);
+        $responceFromConvertService = $this->SendRequestToConvertService($document_uri, $from_extension, $to_extension, $document_revision_id, $is_async);
 
         $errorElement = $responceFromConvertService->Error;
-        if ($errorElement != NULL && $errorElement != "") ProcessConvServResponceError($errorElement);
+        if ($errorElement != NULL && $errorElement != "") self::ProcessConvServResponceError($errorElement);
 
         $isEndConvert = $responceFromConvertService->EndConvert;
         $percent = $responceFromConvertService->Percent . "";
@@ -396,65 +368,130 @@ class OOfficeConnector {
 
 
     /**
-     * Processing document received from the editing service.
+     * Request for conversion to a service
      *
-     * @param string $document_response     The result from editing service
-     * @param string $response_uri          Uri to the converted document
+     * @param string $document_uri            Uri for the document to convert
+     * @param string $from_extension          Document extension
+     * @param string $to_extension            Extension to which to convert
+     * @param string $document_revision_id    Key for caching on service
+     * @param bool   $is_async                Perform conversions asynchronously
      *
-     * @return The percentage of completion of conversion
+     * @return Document request result of conversion
      */
-    function GetResponseUri($document_response, &$response_uri) {
-        $response_uri = "";
-        $resultPercent = 0;
-
-        if (!$document_response) {
-            $errs = "Invalid answer format";
-        }
-
-        $errorElement = $document_response->Error;
-        if ($errorElement != NULL && $errorElement != "") ProcessConvServResponceError($document_response->Error);
-
-        $endConvert = $document_response->EndConvert;
-        if ($endConvert != NULL && $endConvert == "") throw new Exception("Invalid answer format");
-
-        if ($endConvert != NULL && strtolower($endConvert) == true)
+    function SendRequestToConvertService($document_uri, $from_extension, $to_extension, $document_revision_id, $is_async) {
+        if (empty($from_extension))
         {
-            $fileUrl = $document_response->FileUrl;
-            if ($fileUrl == NULL || $fileUrl == "") throw new Exception("Invalid answer format");
-
-            $response_uri = $fileUrl;
-            $resultPercent = 100;
-        }
-        else
-        {
-            $percent = $document_response->Percent;
-
-            if ($percent != NULL && $percent != "")
-                $resultPercent = $percent;
-            if ($resultPercent >= 100)
-                $resultPercent = 99;
+            $path_parts = pathinfo($document_uri);
+            $from_extension = $path_parts['extension'];
         }
 
-        return $resultPercent;
+        $title = basename($document_uri);
+        if (empty($title)) {
+            $title = self::guid();
+        }
+
+        if (empty($document_revision_id)) {
+            $document_revision_id = $document_uri;
+        }
+
+        $document_revision_id = $this->GenerateRevisionId($document_revision_id);
+
+        $urlToConverter = $this->documentServerConverterUrl;
+
+        $data = json_encode(
+            array(
+                "async" => $is_async,
+                "url" => $document_uri,
+                "outputtype" => trim($to_extension,'.'),
+                "filetype" => trim($from_extension, '.'),
+                "title" => $title,
+                "key" => $document_revision_id
+            )
+        );
+
+        $opts = array('http' => array(
+            'method'  => 'POST',
+            'timeout' => $this->documentServerTimeout,
+            'header'=> "Content-type: application/json\r\n" .
+                "Accept: application/json\r\n",
+            'content' => $data
+        )
+        );
+
+        if (substr($urlToConverter, 0, strlen("https")) === "https") {
+            $opts['ssl'] = array( 'verify_peer'   => FALSE );
+        }
+
+        $context  = stream_context_create($opts);
+        $response_data = file_get_contents($urlToConverter, FALSE, $context);
+
+        return $response_data;
+    }
+
+    static public function guid() {
+        if (function_exists('com_create_guid')) {
+            return com_create_guid();
+        } else {
+            mt_srand((double)microtime()*10000);//optional for php 4.2.0 and up.
+            $charid = strtoupper(md5(uniqid(rand(), true)));
+            $hyphen = chr(45);// "-"
+            $uuid = chr(123)// "{"
+                .substr($charid, 0, 8).$hyphen
+                .substr($charid, 8, 4).$hyphen
+                .substr($charid,12, 4).$hyphen
+                .substr($charid,16, 4).$hyphen
+                .substr($charid,20,12)
+                .chr(125);// "}"
+            return $uuid;
+        }
     }
 
 
     /**
-     * @return string|string[]|null
+     * Generate an error code table
+     *
+     * @param string $errorCode   Error code
+     *
+     * @return null
      */
-    function getClientIp() {
-        $ipaddress =
-            getenv('HTTP_CLIENT_IP')?:
-                getenv('HTTP_X_FORWARDED_FOR')?:
-                    getenv('HTTP_X_FORWARDED')?:
-                        getenv('HTTP_FORWARDED_FOR')?:
-                            getenv('HTTP_FORWARDED')?:
-                                getenv('REMOTE_ADDR')?:
-                                    'Storage';
+    static public function ProcessConvServResponceError($errorCode) {
+        $errorMessageTemplate = "Error occurred in the document service: ";
+        $errorMessage = '';
 
-        $ipaddress = preg_replace("/[^0-9a-zA-Z.=]/", "_", $ipaddress);
+        switch ($errorCode)
+        {
+            case -8:
+                $errorMessage = $errorMessageTemplate . "Error document VKey";
+                break;
+            case -7:
+                $errorMessage = $errorMessageTemplate . "Error document request";
+                break;
+            case -6:
+                $errorMessage = $errorMessageTemplate . "Error database";
+                break;
+            case -5:
+                $errorMessage = $errorMessageTemplate . "Error unexpected guid";
+                break;
+            case -4:
+                $errorMessage = $errorMessageTemplate . "Error download error";
+                break;
+            case -3:
+                $errorMessage = $errorMessageTemplate . "Error convertation error";
+                break;
+            case -2:
+                $errorMessage = $errorMessageTemplate . "Error convertation timeout";
+                break;
+            case -1:
+                $errorMessage = $errorMessageTemplate . "Error convertation unknown";
+                break;
+            case 0:
+                break;
+            default:
+                $errorMessage = $errorMessageTemplate . "ErrorCode = " . $errorCode;
+                break;
+        }
 
-        return $ipaddress;
+        throw new Exception($errorMessage);
     }
 
 }
