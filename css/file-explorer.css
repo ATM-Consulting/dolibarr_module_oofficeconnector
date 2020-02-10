@@ -310,7 +310,7 @@
 	width: 64px;
 
 
-	background-image: url(../img/mime/application.svg);
+	background-image: url(../img/mimetypes/application.svg);
 	background-size: 34px 34px;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -357,12 +357,12 @@
 .icon.file.f-docx:after,
 .icon.file.f-rtf:after,
 .icon.file.f-odt:after{
-	background-image: url(../img/mime/wps-office-doc.svg);
+	background-image: url(../img/mimetypes/wps-office-doc.svg);
 }
 
 .icon.file.f-xls:after,
 .icon.file.f-xlsx:after {
-	background-image: url(../img/mime/application-table.svg);
+	background-image: url(../img/mimetypes/application-table.svg);
 }
 
 
@@ -389,7 +389,7 @@
 .icon.file.f-rar:after,
 .icon.file.f-zip:after,
 .icon.file.f-7z:after {
-	background-image: url(../img/mime/application-archive.svg);
+	background-image: url(../img/mimetypes/application-archive.svg);
 }
 
 .icon.file.f-html:after,
