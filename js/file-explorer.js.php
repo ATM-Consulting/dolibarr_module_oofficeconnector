@@ -41,22 +41,11 @@ $(function(){
 
 			goto(window.location.hash);
 
-			// We are triggering the event. This will execute 
+			// We are triggering the event. This will execute
 			// this function on page load, so that we show the correct folder:
 
 		}).trigger('hashchange');
 
-
-		// Hiding and showing the search box
-
-		/*filemanager.find('.search').click(function(){
-
-			var search = $(this);
-
-			search.find('span').hide();
-			search.find('input[type=search]').show().focus();
-
-		});*/
 
 
 		// Listening for keyboard input on the search field.
@@ -352,7 +341,7 @@ $(function(){
 
 					icon = '<span class="icon file f-'+fileType+'">.'+fileType+'</span>';
 
-					var file = $('<li class="files"><a href="'+ f.fileUrl+'" title="'+ f.path +'" class="files">'+icon+'<span class="name">'+ name +'</span> <span class="details">'+fileSize+'</span></a></li>');
+					var file = $('<li class="files"><a href="'+ f.fileUrl+'" title="'+ f.path +'" class="files" target="_blank" >'+icon+'<span class="name">'+ name +'</span> <span class="details">'+fileSize+'</span></a></li>');
 					file.appendTo(fileList);
 				});
 
